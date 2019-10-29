@@ -9,5 +9,5 @@
     "Ctrl-Alt-'": "bracket_changing_3",
     "Shift-Ctrl-Alt-'": "bracket_changing_4"
     
-    simulate the [Sublime_brackets](https://github.com/kuiyochen/Sublime_brackets) and [Sublime_Get_index](https://github.com/kuiyochen/Sublime_Get_index)
+Simulate the [Sublime_brackets](https://github.com/kuiyochen/Sublime_brackets) and [Sublime_Get_index](https://github.com/kuiyochen/Sublime_Get_index)
     
