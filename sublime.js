@@ -624,8 +624,10 @@
           return;
         }
       }
-      var rangeCount = cm.listSelections().length;console.log(rangeCount);
-      var end_number = start_number + difference * (rangeCount - 1);console.log(end_number);
+      var rangeCount = cm.listSelections().length;
+      var end_number = start_number + difference * (rangeCount - 1);
+      // console.log(rangeCount);
+      // console.log(end_number);
       for (var idx = end_number; idx >= start_number; idx -= difference) {
         range = cm.listSelections()[(idx - start_number) / difference];
         cm.replaceRange(idx.toString(10), range.from(), range.to());
@@ -665,13 +667,14 @@
   }
 
   function bracket_changing(cm, input_bracket) {
-    var bracket_like_list = [["(", ")"], ["[", "]"], ["{", "}"], ["'", "'"], ['"', '"'], ["", ""]]
+    var bracket_like_list = ["()", "[]", "{}", "''", '""', ""]
     // var fulltext_length = cm.getValue().length
     // console.log(fulltext_length)
     var ranges = cm.listSelections(), newRanges = []
     for (var i = ranges.length - 1; i >= 0 ; i--) {
       var range = ranges[i], pos = range.head, opening = cm.scanForBracket(pos, -1);
       var range_from = range.from(), range_to = range.to();
+      // console.log(range)
       // console.log(range_from.line)
       // console.log(range_from.ch)
       var pre_char = "skip", next_char = "skip";
@@ -681,27 +684,28 @@
       if (range_to.line != cm.lastLine() || range_to.ch != cm.getLine(cm.lastLine()).length){
         next_char = cm.getRange(range_to, Pos(range_to.line, range_to.ch + 1));
       }
-      console.log(pre_char)
-      console.log(next_char)
+      // console.log(pre_char)
+      // console.log(next_char)
       if (pre_char == "skip" || next_char == "skip"){
         continue;
       }
-      var idx = bracket_like_list.includes([pre_char, next_char]);
-      if (idx >= 0){
-        console.log(input_bracket[0])
-        cm.replaceRange(input_bracket[1], range_to, Pos(range_to.line, range_to.ch + 1));
-        cm.replaceRange(input_bracket[0], Pos(range_from.line, range_from.ch - 1), range_from);
-        if (input_bracket[0] == ""){
-          range_from.ch--;
-          if (range_from.line == range_to.line){
-            range_to.ch--;
-          }
-        }
-        newRanges.push({anchor: range_from, head: range_to});
+      // var idx = bracket_like_list.includes(pre_char + next_char);
+      if (bracket_like_list.includes(pre_char + next_char)){
+        // console.log(input_bracket[0])
+        var str = cm.getRange(range.from(), range.to())
+        cm.replaceRange(input_bracket[0] + str + input_bracket[1], Pos(range_from.line, range_from.ch - 1), Pos(range_to.line, range_to.ch + 1));
+        // cm.replaceRange(input_bracket[0], range_to, Pos(range_to.line, range_to.ch + 1));
+        // cm.replaceRange(input_bracket[1], Pos(range_from.line, range_from.ch - 1), range_from);
+        // if (input_bracket[0] == ""){
+        //   range_from.ch--;
+        //   if (range_from.line == range_to.line){
+        //     range_to.ch--;
+        //   }
+        // }
+        // newRanges.push({anchor: range_from, head: range_to});
       }
-      // var str = cm.getRange(range_from, range_to);
     }
-    cm.setSelections(newRanges);
+    // cm.setSelections(newRanges);
     return true;
   }
 
