@@ -667,46 +667,59 @@
   }
 
   function bracket_changing(cm, input_bracket) {
+    // console.log("------------------------------------------");
+    // console.log(cm.getHistory());
     var bracket_like_list = ["()", "[]", "{}", "''", '""', ""]
     // var fulltext_length = cm.getValue().length
     // console.log(fulltext_length)
     var ranges = cm.listSelections(), newRanges = []
     for (var i = ranges.length - 1; i >= 0 ; i--) {
-      var range = ranges[i], pos = range.head, opening = cm.scanForBracket(pos, -1);
+      var range = ranges[i];
       var range_from = range.from(), range_to = range.to();
-      // console.log(range)
-      // console.log(range_from.line)
-      // console.log(range_from.ch)
-      var pre_char = "skip", next_char = "skip";
-      if (range_from.line != 0 || range_from.ch != 0){
-        pre_char = cm.getRange(Pos(range_from.line, range_from.ch - 1), range_from);
-      }
-      if (range_to.line != cm.lastLine() || range_to.ch != cm.getLine(cm.lastLine()).length){
-        next_char = cm.getRange(range_to, Pos(range_to.line, range_to.ch + 1));
-      }
-      // console.log(pre_char)
-      // console.log(next_char)
-      if (pre_char == "skip" || next_char == "skip"){
-        continue;
-      }
-      // var idx = bracket_like_list.includes(pre_char + next_char);
-      if (bracket_like_list.includes(pre_char + next_char)){
-        // console.log(input_bracket[0])
-        var str = cm.getRange(range.from(), range.to())
-        cm.replaceRange(input_bracket[0] + str + input_bracket[1], Pos(range_from.line, range_from.ch - 1), Pos(range_to.line, range_to.ch + 1));
-        // cm.replaceRange(input_bracket[0], range_to, Pos(range_to.line, range_to.ch + 1));
-        // cm.replaceRange(input_bracket[1], Pos(range_from.line, range_from.ch - 1), range_from);
-        // if (input_bracket[0] == ""){
-        //   range_from.ch--;
-        //   if (range_from.line == range_to.line){
-        //     range_to.ch--;
-        //   }
-        // }
-        // newRanges.push({anchor: range_from, head: range_to});
-      }
+      if (input_bracket[0] == "s"){
+        if (range_from == range_to){
+          newRanges.push({anchor: range_from, head: range_from});
+        }else{
+          newRanges.push({anchor: range_from, head: range_from});
+          newRanges.push({anchor: range_to, head: range_to});
+        }
+      }else{
+          // console.log(range)
+          // console.log(range_from.line)
+          // console.log(range_from.ch)
+          var pre_char = "skip", next_char = "skip";
+          if (range_from.line != 0 || range_from.ch != 0){
+            pre_char = cm.getRange(Pos(range_from.line, range_from.ch - 1), range_from);
+          }
+          if (range_to.line != cm.lastLine() || range_to.ch != cm.getLine(cm.lastLine()).length){
+            next_char = cm.getRange(range_to, Pos(range_to.line, range_to.ch + 1));
+          }
+          // console.log(pre_char)
+          // console.log(next_char)
+          if (pre_char == "skip" || next_char == "skip"){
+            newRanges.push({anchor: range_from + 0, head: range_to + 0});
+            continue;
+          }
+          if (bracket_like_list.includes(pre_char + next_char)){
+            // console.log(input_bracket[0])
+            var str = cm.getRange(range.from(), range.to())
+            cm.replaceRange(input_bracket[0] + str + input_bracket[1], Pos(range_from.line, range_from.ch - 1), Pos(range_to.line, range_to.ch + 1), "change");
+            // cm.replaceRange(input_bracket[1], range_to, Pos(range_to.line, range_to.ch + 1));
+            // cm.replaceRange(input_bracket[0], Pos(range_from.line, range_from.ch - 1), range_from);
+            if (input_bracket[0] == ""){
+              newRanges.push({anchor: range_from - 1, head: range_to - 1});
+            }else{
+              newRanges.push({anchor: range_from + 0, head: range_to + 0});
+            }
+          }
+        }
     }
-    // cm.setSelections(newRanges);
-    return true;
+    cm.setSelections(newRanges);
+    // try {
+    //   cm.setSelections(newRanges);
+    // } catch (e) {
+    //   if (e.message != "Cannot read property 'chunkSize' of undefined"){throw e;}
+    // }
   }
 
   cmds.bracket_changing_backspace = function(cm) {bracket_changing(cm, ["", ""])}
@@ -715,6 +728,7 @@
   cmds.bracket_changing_2 = function(cm) {bracket_changing(cm, ["{", "}"])}
   cmds.bracket_changing_3 = function(cm) {bracket_changing(cm, ["'", "'"])}
   cmds.bracket_changing_4 = function(cm) {bracket_changing(cm, ['"', '"'])}
+  cmds.selection_spilt = function(cm) {bracket_changing(cm, ["s", "s"])}
 
   var keyMap = CodeMirror.keyMap;
   keyMap.macSublime = {
@@ -842,6 +856,7 @@
     "Shift-Ctrl-Alt-[": "bracket_changing_2",
     "Ctrl-Alt-'": "bracket_changing_3",
     "Shift-Ctrl-Alt-'": "bracket_changing_4",
+    "Ctrl-Alt-S": "selection_spilt",
   };
   CodeMirror.normalizeKeyMap(keyMap.pcSublime);
 
