@@ -697,7 +697,7 @@
           // console.log(pre_char)
           // console.log(next_char)
           if (pre_char == "skip" || next_char == "skip"){
-            newRanges.push({anchor: range_from + 0, head: range_to + 0});
+            newRanges.push({anchor: range_from, head: range_to});
             continue;
           }
           if (bracket_like_list.includes(pre_char + next_char)){
@@ -707,9 +707,9 @@
             // cm.replaceRange(input_bracket[1], range_to, Pos(range_to.line, range_to.ch + 1));
             // cm.replaceRange(input_bracket[0], Pos(range_from.line, range_from.ch - 1), range_from);
             if (input_bracket[0] == ""){
-              newRanges.push({anchor: range_from - 1, head: range_to - 1});
+              newRanges.push({anchor: Pos(range_from.line, range_from.ch - 1), head: Pos(range_to.line, range_to.ch - 1)});
             }else{
-              newRanges.push({anchor: range_from + 0, head: range_to + 0});
+              newRanges.push({anchor: range_from, head: range_to});
             }
           }
         }
