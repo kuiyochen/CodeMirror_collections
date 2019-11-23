@@ -672,7 +672,22 @@
     var bracket_like_list = ["()", "[]", "{}", "''", '""', ""]
     // var fulltext_length = cm.getValue().length
     // console.log(fulltext_length)
-    var ranges = cm.listSelections(), newRanges = []
+    var ranges = cm.listSelections(), newRanges = [];
+    var ranges_froms_line = [];
+    var ranges_froms_ch = [];
+    var ranges_tos_line = [];
+    var ranges_tos_ch = [];
+    var skip = [];
+    if (input_bracket[0] == ""){
+      for (var i = 0; i < ranges.length ; i++) {
+        var range = ranges[i];
+        var range_from = range.from(), range_to = range.to();
+        ranges_froms_line.push(range_from.line);
+        ranges_froms_ch.push(range_from.ch);
+        ranges_tos_line.push(range_to.line);
+        ranges_tos_ch.push(range_to.ch);
+      }
+    }
     for (var i = ranges.length - 1; i >= 0 ; i--) {
       var range = ranges[i];
       var range_from = range.from(), range_to = range.to();
@@ -684,9 +699,6 @@
           newRanges.push({anchor: range_to, head: range_to});
         }
       }else{
-          // console.log(range)
-          // console.log(range_from.line)
-          // console.log(range_from.ch)
           var pre_char = "skip", next_char = "skip";
           if (range_from.line != 0 || range_from.ch != 0){
             pre_char = cm.getRange(Pos(range_from.line, range_from.ch - 1), range_from);
@@ -694,32 +706,55 @@
           if (range_to.line != cm.lastLine() || range_to.ch != cm.getLine(cm.lastLine()).length){
             next_char = cm.getRange(range_to, Pos(range_to.line, range_to.ch + 1));
           }
-          // console.log(pre_char)
-          // console.log(next_char)
           if (pre_char == "skip" || next_char == "skip"){
-            newRanges.push({anchor: range_from, head: range_to});
+            if (input_bracket[0] != ""){
+              newRanges.push({anchor: range_from, head: range_to});
+            }else{
+              skip.push(i);
+            }
             continue;
           }
           if (bracket_like_list.includes(pre_char + next_char)){
-            // console.log(input_bracket[0])
             var str = cm.getRange(range.from(), range.to())
             cm.replaceRange(input_bracket[0] + str + input_bracket[1], Pos(range_from.line, range_from.ch - 1), Pos(range_to.line, range_to.ch + 1), "change");
-            // cm.replaceRange(input_bracket[1], range_to, Pos(range_to.line, range_to.ch + 1));
-            // cm.replaceRange(input_bracket[0], Pos(range_from.line, range_from.ch - 1), range_from);
-            if (input_bracket[0] == ""){
-              newRanges.push({anchor: Pos(range_from.line, range_from.ch - 1), head: Pos(range_to.line, range_to.ch - 1)});
-            }else{
+            if (input_bracket[0] != ""){
               newRanges.push({anchor: range_from, head: range_to});
+            }
+          }else{
+            if (input_bracket[0] == ""){
+              skip.push(i);
             }
           }
         }
     }
+    if (input_bracket[0] == ""){
+      for (var i = 0; i < ranges.length ; i++) {
+        var from_offset = 0, to_offset = 0;
+        var range = ranges[i];
+        var range_from = range.from(), range_to = range.to();
+        for (var j = 0; j <= i ; j++) {
+          if (ranges_tos_line[j] < range_from.line){continue;}
+          var skip_includes = skip.includes(j)
+          // if (skip_includes && i != j){continue;}
+          if (ranges_froms_line[j] == range_from.line && !skip_includes){
+            if(ranges_froms_ch[j] <= range_from.ch){from_offset += 1;}else{break;}
+          }
+          if (ranges_froms_line[j] <= range_from.line && ranges_tos_ch[j] < range_from.ch && i != j && !skip_includes){
+            from_offset += 1;
+          }
+          // if (ranges_froms_line[j] == range_from.line && ranges_tos_ch[j] < range_from.ch && i != j && !skip_includes){
+          //   from_offset += 1;
+          // }
+        }
+        if (range_from.line == range_to.line){
+          to_offset = from_offset;
+        }else{
+          to_offset = 0;
+        }
+        newRanges.push({anchor: Pos(range_from.line, range_from.ch - from_offset), head: Pos(range_to.line, range_to.ch - to_offset)});
+      }
+    }
     cm.setSelections(newRanges);
-    // try {
-    //   cm.setSelections(newRanges);
-    // } catch (e) {
-    //   if (e.message != "Cannot read property 'chunkSize' of undefined"){throw e;}
-    // }
   }
 
   cmds.bracket_changing_backspace = function(cm) {bracket_changing(cm, ["", ""])}
