@@ -8,7 +8,8 @@
     "Shift-Ctrl-Alt-[": "bracket_changing_2",
     "Ctrl-Alt-'": "bracket_changing_3",
     "Shift-Ctrl-Alt-'": "bracket_changing_4",
-    "Ctrl-Alt-S": "selection_spilt"
+    "Ctrl-Alt-S": "selection_spilt",
+    "Shift-Ctrl-Alt-S": "interchange_regions"
     
-Simulate the [Sublime_brackets](https://github.com/kuiyochen/Sublime_brackets) and [Sublime_Get_index](https://github.com/kuiyochen/Sublime_Get_index)
-    
+Simulate the [Sublime_API_collection](https://github.com/kuiyochen/Sublime_API_collection)
+
