@@ -715,7 +715,7 @@
             continue;
           }
           if (bracket_like_list.includes(pre_char + next_char)){
-            var str = cm.getRange(range.from(), range.to())
+            var str = cm.getRange(range.from(), range.to());
             cm.replaceRange(input_bracket[0] + str + input_bracket[1], Pos(range_from.line, range_from.ch - 1), Pos(range_to.line, range_to.ch + 1), "change");
             if (input_bracket[0] != ""){
               newRanges.push({anchor: range_from, head: range_to});
@@ -764,6 +764,30 @@
   cmds.bracket_changing_3 = function(cm) {bracket_changing(cm, ["'", "'"])}
   cmds.bracket_changing_4 = function(cm) {bracket_changing(cm, ['"', '"'])}
   cmds.selection_spilt = function(cm) {bracket_changing(cm, ["s", "s"])}
+
+  cmds.interchange_regions = function(cm) {
+    var ranges = cm.listSelections(), newRanges = [];
+    if (ranges.length % 2 != 0) {
+      return;
+    }
+    var i = ranges.length - 1;
+    while (i > 0){
+      var str_front = cm.getRange(ranges[i - 1].from(), ranges[i - 1].to());
+      var str_back = cm.getRange(ranges[i].from(), ranges[i].to());
+      var pos1 = cm.doc.indexFromPos(ranges[i - 1].from());
+      var pos2 = cm.doc.indexFromPos(ranges[i - 1].to());
+      var pos3 = cm.doc.indexFromPos(ranges[i].from());
+      var pos4 = cm.doc.indexFromPos(ranges[i].to());
+      cm.replaceRange(str_front, ranges[i].from(), ranges[i].to(), "change");
+      cm.replaceRange(str_back, ranges[i - 1].from(), ranges[i - 1].to(), "change");
+      newRanges.push({anchor: cm.doc.posFromIndex(pos4 - (pos2 - pos1)), head: cm.doc.posFromIndex(pos4)});
+      newRanges.push({anchor: cm.doc.posFromIndex(pos1), head: cm.doc.posFromIndex(pos1 + (pos4 - pos3))});
+      i -= 2;
+    }
+    cm.scrollIntoView();
+    cm.setSelections(newRanges);
+  };
+
 
   var keyMap = CodeMirror.keyMap;
   keyMap.macSublime = {
@@ -892,6 +916,7 @@
     "Ctrl-Alt-'": "bracket_changing_3",
     "Shift-Ctrl-Alt-'": "bracket_changing_4",
     "Ctrl-Alt-S": "selection_spilt",
+    "Shift-Ctrl-Alt-S": "interchange_regions",
   };
   CodeMirror.normalizeKeyMap(keyMap.pcSublime);
 
