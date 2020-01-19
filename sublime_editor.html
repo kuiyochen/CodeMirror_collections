@@ -3,42 +3,42 @@
 <title>Sublime Text Editor</title>
 <meta charset="utf-8"/>
 
-<link rel="stylesheet" href="../lib/codemirror.css">
-<link rel="stylesheet" href="../addon/fold/foldgutter.css">
-<link rel="stylesheet" href="../addon/dialog/dialog.css">
-<link rel="stylesheet" href="../theme/monokai.css">
-<script src="../lib/codemirror.js"></script>
-<script src="../addon/search/searchcursor.js"></script>
-<script src="../addon/search/search.js"></script>
-<script src="../addon/dialog/dialog.js"></script>
-<script src="../addon/edit/matchbrackets.js"></script>
-<script src="../addon/edit/closebrackets.js"></script>
-<script src="../addon/comment/comment.js"></script>
-<script src="../addon/wrap/hardwrap.js"></script>
-<script src="../addon/fold/foldcode.js"></script>
-<script src="../addon/fold/brace-fold.js"></script>
-<script src="../mode/python/python.js"></script>
-<script src="../keymap/sublime.js"></script>
+<link rel="stylesheet" href="./lib/codemirror.css">
+<link rel="stylesheet" href="./addon/fold/foldgutter.css">
+<link rel="stylesheet" href="./addon/dialog/dialog.css">
+<link rel="stylesheet" href="./theme/monokai.css">
+<script src="./lib/codemirror.js"></script>
+<script src="./addon/search/searchcursor.js"></script>
+<script src="./addon/search/search.js"></script>
+<script src="./addon/dialog/dialog.js"></script>
+<script src="./addon/edit/matchbrackets.js"></script>
+<script src="./addon/edit/closebrackets.js"></script>
+<script src="./addon/comment/comment.js"></script>
+<script src="./addon/wrap/hardwrap.js"></script>
+<script src="./addon/fold/foldcode.js"></script>
+<script src="./addon/fold/brace-fold.js"></script>
+<script src="./mode/python/python.js"></script>
+<script src="./keymap/sublime.js"></script>
 
 
 <!-- https://github.com/alterfan/minimap -->
-<link rel="stylesheet" href="../addon/scroll/simplescrollbars.css">
-<script src="../addon/scroll/simplescrollbars.js"></script>
-<script src="../addon/display/panel.js"></script>
-<script src="../dist/cache.js" type="text/javascript"></script>
-<script src="../dist/drawer.js" type="text/javascript"></script>
-<script src="../dist/elements.js" type="text/javascript"></script>
-<script src="../dist/minimap.js" type="text/javascript"></script>
-<script src="../dist/extension.js" type="text/javascript"></script>
+<link rel="stylesheet" href="./addon/scroll/simplescrollbars.css">
+<script src="./addon/scroll/simplescrollbars.js"></script>
+<script src="./addon/display/panel.js"></script>
+<script src="./dist/cache.js" type="text/javascript"></script>
+<script src="./dist/drawer.js" type="text/javascript"></script>
+<script src="./dist/elements.js" type="text/javascript"></script>
+<script src="./dist/minimap.js" type="text/javascript"></script>
+<script src="./dist/extension.js" type="text/javascript"></script>
 
 <!-- Highlight -->
-<script src="../addon/scroll/annotatescrollbar.js"></script>
-<script src="../addon/search/matchesonscrollbar.js"></script>
-<script src="../addon/search/searchcursor.js"></script>
-<script src="../addon/search/match-highlighter.js"></script>
+<!-- <script src="./addon/scroll/annotatescrollbar.js"></script>
+<script src="./addon/search/matchesonscrollbar.js"></script>
+<script src="./addon/search/searchcursor.js"></script>
+<script src="./addon/search/match-highlighter.js"></script> -->
 
 
-<script src="../jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="./jquery-3.3.1.min.js" type="text/javascript"></script>
 <style>
   .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee; line-height: 1.3; height: 95vh;}
   .CodeMirror-linenumbers { padding: 0 8px; }
@@ -69,6 +69,8 @@
 <!-- <div id=nav></div> -->
 <article>
 <!-- <h2>Sublime Text Editor</h2> -->
+<input type="button" id='script' name="scriptbutton" value=" Run Script " onclick="goPython()">
+
 <p>
 <script>
   var editor = CodeMirror(document.body.getElementsByTagName("article")[0], {
@@ -84,7 +86,7 @@
     miniMap: true,
     miniMapWidth: 80,
     miniMapSide: "right",
-    highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true}
+    // highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true}
   });
   // document.body.getElementsByClassName("CodeMirror-vscrollbar")[0].outerHTML = "";
   document.body.getElementsByClassName("CodeMirror-scrollbar-filler")[0].outerHTML = "";
@@ -145,6 +147,21 @@
     }
   });
   editor.on('change', function(){already_saved = false;});
+
+  function goPython(){
+            $.ajax({
+              type: 'post',
+              datatype: "json",
+              url: "/save.py",
+              data: {'name': String(editor.getValue())}
+            }).done(function() {
+             // alert('finished python script');;
+              // console.log("Yooooooooooooooooooo")
+            });
+            // $.get('/save.py', function(ret) {
+            //     console.log(ret)
+            // })
+        }
 </script>
 <!-- <script>
 document.ondragover = document.ondrop = (ev) => {
